@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2020/1/15 21:57
-# @Author  : westerchen
 # @File    : cal_program_usage.py
 # @Resume  : 进行程序内存占用的计算
 
