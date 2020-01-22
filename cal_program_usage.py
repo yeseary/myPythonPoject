@@ -4,15 +4,15 @@
 # @File    : cal_program_usage.py
 # @Resume  : 进行程序内存占用的计算
 
-# import commands
-import time
-import sys
-import subprocess
-import os
-from multiprocessing import Pool
 import locale
-import psutil
+import os
+import subprocess
+import sys
+import time
+from multiprocessing import Pool
 from threading import Thread
+
+import psutil
 
 try:
     from queue import Queue, Empty
@@ -77,9 +77,10 @@ class ProcessResourcer(object):
         if self.sum_cost > self.max_cost:
             self.max_cost = self.sum_cost
 
-        self.file.write("time:{time}, type:{type}, now_cost: {human_size}, max_cost: {max_cost}, child_pids:{child_pids} \n".format(
-            time=time.strftime("%x %X", time.localtime()), max_cost=ProcessResourcer.sizeof_fmt(self.max_cost),
-            type=self.type, human_size=ProcessResourcer.sizeof_fmt(self.sum_cost), child_pids=self.child_pid_set))
+        self.file.write(
+            "time:{time}, type:{type}, now_cost: {human_size}, max_cost: {max_cost}, child_pids:{child_pids} \n".format(
+                time=time.strftime("%x %X", time.localtime()), max_cost=ProcessResourcer.sizeof_fmt(self.max_cost),
+                type=self.type, human_size=ProcessResourcer.sizeof_fmt(self.sum_cost), child_pids=self.child_pid_set))
         self.file.flush()
 
     def __add__(self, other):
@@ -142,13 +143,6 @@ class ProcessResourcer(object):
 
 
 def get_child_pid(pid, pid_set):
-    # cmd = "pstree -a -p {0}".format(pid)
-    # ret_code, res = os_command(cmd)
-    # pid_list = set()
-    # for line in res.split('\n'):
-    #     _, pid = line.split(",")
-    #     pid_list.add(int(pid.strip(")").strip(" ")))
-    # return pid_list
     try:
         parent = psutil.Process(pid)
         pid_set.add(pid)
@@ -173,27 +167,8 @@ def communicate(p, commands=None):
 
 
 if __name__ == "__main__":
-    # command = sys.argv[1]
-    # proc = subprocess.Popen(command,
-    #                         shell=False,
-    #                         env=os.environ)
-    # child_proc = get_child_pid(2005857)
-    # print child_proc
-    # procs_list = []
-    #
-    # for _child_pid in child_proc:
-    #     print ProcessResourcer.convert_format_size_to_int(ProcessResourcer.get_type_usage_by_pid(_child_pid))
-    #     procs_list.append(ProcessResourcer(_child_pid))
-    # while True:
-    #     for _process_resoucer in procs_list:
-    #         _process_resoucer.sync()
-    #     print sum(procs_list)
-    #     time.sleep(1)
-    # command_name = sys.argv[1]
     command = " ".join(sys.argv[1:])
     proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=os.environ, shell=True)
-    # stdout_file = open('stdout.txt', 'a+')
-    # stderr_file = open()
     _processor = ProcessResourcer(proc.pid, 'VmRSS')
     q = Queue()
     t = Thread(target=enqueue_output, args=(proc.stdout, q))
@@ -203,23 +178,10 @@ if __name__ == "__main__":
         if subprocess.Popen.poll(proc) == 0:
             break
         _processor.sync()
-        # for line in proc.stdout.readlines():
-        #     print line
-        # for line in iter(proc.stdout.readline, ''):
-        #     print line.strip()
-        # time.sleep(0.01)
-        # stdout, stderr = communicate()
-        # print(stdout)
-        # print(stderr)
-        # time.sleep(2)
         try:
             line = q.get_nowait()  # or q.get(timeout=.1)
         except Empty:
-            # print('no output yet')
             time.sleep(0.1)
             pass
-        else:  # got line
-            # ... do something with line
+        else:
             print line.strip()
-
-
